@@ -4,10 +4,15 @@ import { format } from 'date-fns'
 import { DayPicker } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 import { ja } from 'date-fns/locale'
+import TaskInput from '@/components/TaskInput'     // ① 入力コンポーネント
+import { useTasksOfDate } from '@/hooks/useTasksOfDate' // ② SWR フック
 
 export default function Home() {
   // 今日を選択した日付として初期化
   const [selected, setSelected] = useState<Date | undefined>(new Date());
+
+  /* ③ 選択日のタスクを取得 */
+  const { tasks, isLoading, mutate } = useTasksOfDate(selected)
 
   return (
     <main className="p-6">
@@ -26,7 +31,22 @@ export default function Home() {
         showOutsideDays                  // 前後の月の日も表示
       />
 
-      {/* ⑥ 後続 Day 9 でタスクリストをここへ */}
+      {/* ⑤ 入力欄：登録成功時 mutate() を呼ぶ */}
+      <TaskInput date={selected} onSuccess={mutate} />
+
+      {/* ⑥ タスクリスト */}
+      <ul className="mt-4 space-y-1">
+        {isLoading && <li>Loading…</li>}
+        {/* 取得したタスク分処理を回す */}
+        {tasks.map(t => (
+          <li key={t.id} className="flex items-center gap-2">
+            {/* ステータス表示は Day11 でラジオ化 */}
+            <span className="w-3 h-3 rounded-full bg-gray-400" />
+            {t.title}
+          </li>
+        ))}
+        {!isLoading && tasks.length === 0 && <li>タスクなし</li>}
+      </ul>
     </main>
   );
 }
