@@ -6,6 +6,7 @@ import 'react-day-picker/dist/style.css'
 import { ja } from 'date-fns/locale'
 import TaskInput from '@/components/TaskInput'     // ① 入力コンポーネント
 import { useTasksOfDate } from '@/hooks/useTasksOfDate' // ② SWR フック
+import StatusToggle from '@/components/StatusToggle'
 
 export default function Home() {
   // 今日を選択した日付として初期化
@@ -40,9 +41,11 @@ export default function Home() {
         {/* 取得したタスク分処理を回す */}
         {tasks.map(t => (
           <li key={t.id} className="flex items-center gap-2">
-            {/* ステータス表示は Day11 でラジオ化 */}
             <span className="w-3 h-3 rounded-full bg-gray-400" />
+            {/* タスク名表示 */}
             {t.title}
+            {/* ラジオボタン表示 */}
+            <StatusToggle id={t.id} init={t.status} onSuccess={mutate} />
           </li>
         ))}
         {!isLoading && tasks.length === 0 && <li>タスクなし</li>}
